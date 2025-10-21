@@ -1,0 +1,19 @@
+{
+  "main_script": "/Users/kang/Documents/Projects/ToolsPack/dependency_analyzer.py",
+  "app_name": "dependency_analyzer",
+  "one_file": false,
+  "windowed": true,
+  "macos_bundle": true,
+  "icon": "/Users/kang/Documents/Projects/ToolsPack/r.icns",
+  "version": "1.0.0",
+  "company": null,
+  "copyright": "© 2025",
+  "description": null,
+  "datas": [],
+  "hidden_imports": [],
+  "dist_dir": "./dist",
+  "build_dir": "./build",
+  "clean": true,
+  "upx": false,
+  "debug": false
+}
