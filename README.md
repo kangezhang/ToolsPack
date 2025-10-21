@@ -24,7 +24,7 @@
 直接运行 Python 脚本：
 
 ```bash
-python dependency_analyzer.py
+python pytools_dependency_analyzer.py
 ```
 
 ## 📖 使用说明
