@@ -1,6 +1,6 @@
 #!/bin/bash
 # PyInstaller Build Script
-# Generated: 2025-10-21 14:49:54
+# Generated: 2025-10-21 16:28:13
 
 echo "[PYINSTALLER BUILD]"
 echo ""
@@ -12,7 +12,7 @@ echo "[+] Clean complete"
 echo ""
 
 echo "[*] Starting build process..."
-pyinstaller --distpath "./dist" --workpath "./build" "dependency_analyzer.spec"
+pyinstaller --distpath "./dist" --workpath "./build" "pytools_scaffolder.spec"
 
 if [ $? -eq 0 ]; then
     echo ""

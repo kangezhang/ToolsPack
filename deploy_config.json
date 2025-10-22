@@ -1,10 +1,10 @@
 {
-  "main_script": "/Users/kang/Documents/Projects/ToolsPack/dependency_analyzer.py",
-  "app_name": "dependency_analyzer",
+  "main_script": "/Users/kang/Documents/Projects/ToolsPack/pytools_scaffolder.py",
+  "app_name": "pytools_scaffolder",
   "one_file": false,
   "windowed": true,
   "macos_bundle": true,
-  "icon": "/Users/kang/Documents/Projects/ToolsPack/r.icns",
+  "icon": "/Users/kang/Documents/Projects/ToolsPack/S.icns",
   "version": "1.0.0",
   "company": null,
   "copyright": "© 2025",
