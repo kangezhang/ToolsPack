@@ -4,3 +4,13 @@
 
 importlib_metadata==8.7.0
 pyinstaller
+
+customtkinter >= 5.2.0
+Pillow >= 10.0.0
+numpy >= 1.24.0
+
+pandas >= 1.5.0
+matplotlib >= 3.5.0
+seaborn >= 0.12.0
+numpy >= 1.21.0
+streamlit >= 1.28.0
