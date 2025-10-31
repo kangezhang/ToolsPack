@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity性能分析报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .metadata {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .card-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .card.good .card-value { color: #10b981; }
+        .card.warning .card-value { color: #f59e0b; }
+        .card.bad .card-value { color: #ef4444; }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .issues-section, .recommendations-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .issue-item, .recommendation-item {
+            padding: 16px;
+            border-left: 4px solid;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .issue-item.critical {
+            background: #fff5f5;
+            border-left-color: #ef4444;
+        }
+
+        .issue-item.warning {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+        }
+
+        .recommendation-item.critical { background: #fff5f5; border-left-color: #ef4444; }
+        .recommendation-item.high { background: #fffbeb; border-left-color: #f59e0b; }
+        .recommendation-item.medium { background: #f0fdf4; border-left-color: #10b981; }
+        .recommendation-item.low { background: #f8f9ff; border-left-color: #667eea; }
+
+        .item-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .item-content {
+            font-size: 13px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Unity性能分析报告</h1>
+            <div class="metadata" id="metadata"></div>
+        </div>
+
+        <div class="summary-cards" id="summaryCards"></div>
+        <div class="chart-grid" id="charts"></div>
+        <div class="issues-section" id="issues"></div>
+        <div class="recommendations-section" id="recommendations"></div>
+    </div>
+
+    <script>
+        // 加载JSON数据
+        const analysisData = {"metadata": {"file_name": "FinalReport_20251030_095302.csv", "platform": "Auto", "total_samples": 27, "duration": 23.386, "sample_rate": 0.8661481481481481, "analysis_time": "2025-10-30 10:38:35"}, "summary": {"duration_minutes": 0.38976666666666665, "total_samples": 27, "scene_count": 1}, "fps": {"mean": 46.50888888888889, "median": 59.23, "min": 0.2, "max": 62.56, "std": 23.94684583908757, "cv": 0.5148875066935547, "p1": 0.2, "p5": 0.266, "p25": 43.9, "p75": 60.16, "p95": 61.620999999999995, "p99": 62.3338}, "memory": {"mean": 421.1455555555555, "min": 265.4, "max": 457.21, "growth": 185.08000000000004, "growth_rate": 7.914136662960748, "mono_mean": 785.805925925926, "mono_max": 852.96}, "gc": {"mean": 138.46296296296296, "median": 4.98, "max": 2651.37, "total": 3738.5, "spike_count": 2, "spike_rate": 0.07407407407407407}, "rendering": {"draw_calls_mean": 2.740740740740741, "draw_calls_max": 23, "batches_mean": 2.740740740740741, "batches_max": 23, "batch_efficiency": 1.0, "triangles_mean": 22.962962962962962, "triangles_max": 250}, "cpu": {"mean": 34.166, "median": 0.626, "max": 354.895, "p95": 262.2951999999998, "p99": 349.91002}, "anomalies": {"count": 25, "rate": 0.9259259259259259}, "scenes": {"Launcher": {"count": 27, "avg_fps": 46.50888888888889, "min_fps": 0.2, "avg_memory": 421.1455555555555, "max_memory": 457.21}}, "correlations": {"FPS": {"TotalAllocated_MB": 0.6655477206690906, "GCAllocThisFrame_KB": -0.5042694546671567, "DrawCalls": -0.7259875276433095, "CPUFrameTime_ms": -0.6759131946105708}, "TotalAllocated_MB": {"FPS": 0.6655477206690906, "GCAllocThisFrame_KB": -0.50985948408559, "DrawCalls": -0.13937440645227137, "CPUFrameTime_ms": -0.256093693645739}, "GCAllocThisFrame_KB": {"FPS": -0.5042694546671569, "TotalAllocated_MB": -0.5098594840855899, "DrawCalls": -0.061549688795990924, "CPUFrameTime_ms": 0.06440213442069812}, "DrawCalls": {"FPS": -0.7259875276433093, "TotalAllocated_MB": -0.13937440645227142, "GCAllocThisFrame_KB": -0.061549688795990876, "CPUFrameTime_ms": 0.7516726378934213}, "CPUFrameTime_ms": {"FPS": -0.6759131946105708, "TotalAllocated_MB": -0.2560936936457391, "GCAllocThisFrame_KB": 0.06440213442069816, "DrawCalls": 0.7516726378934212}}, "trends": {"fps": {"slope": 1.9060256410256413, "trend_type": "increasing", "r_squared": -0.7127108381864165, "confidence": "low"}, "memory": {"slope": 5.32637362637362, "trend_type": "increasing", "r_squared": -1.0259605846098414, "confidence": "low"}, "gc": {"slope": -26.139285714285737, "trend_type": "decreasing", "r_squared": -0.286267435737104, "confidence": "low"}}, "bottleneck": {}, "statistical_anomalies": {"fps": {"count": 0, "rate": 0.0, "indices": []}}, "mobile_predictions": {"flagship_2024": {"name": "2024旗舰机", "predicted_fps": 41.858000000000004, "predicted_memory": 525.7914999999999, "predicted_gc": 173.0787037037037, "playable": true, "score": 40.0}, "flagship_2022": {"name": "2022旗舰机", "predicted_fps": 37.20711111111111, "predicted_memory": 594.373, "predicted_gc": 193.84814814814814, "playable": true, "score": 40.0}, "high_end": {"name": "高端设备", "predicted_fps": 30.230777777777778, "predicted_memory": 731.5360000000001, "predicted_gc": 235.38703703703703, "playable": true, "score": 30.0}, "mid_range": {"name": "中端设备", "predicted_fps": 23.254444444444445, "predicted_memory": 914.42, "predicted_gc": 304.61851851851856, "playable": false, "score": 10.0}, "low_end": {"name": "低端设备", "predicted_fps": 16.278111111111112, "predicted_memory": 1280.1879999999999, "predicted_gc": 415.3888888888889, "playable": false, "score": 10.0}}, "performance_score": 58, "issues": [{"severity": "critical", "category": "FPS", "description": "1%低点FPS极低 (0.2)，存在严重卡顿", "suggestion": "定位异常帧，检查资源加载、GC或物理计算峰值"}, {"severity": "warning", "category": "FPS Stability", "description": "FPS波动过大 (变异系数: 0.51)", "suggestion": "检查帧时间尖峰，优化资源加载，避免同步操作"}, {"severity": "critical", "category": "Memory Leak", "description": "检测到内存泄漏 (增长率: 319.58MB/分钟)", "suggestion": "使用Memory Profiler定位泄漏源，检查事件订阅和静态引用"}, {"severity": "warning", "category": "GC", "description": "GC压力过大 (138KB/帧)，频繁触发GC", "suggestion": "减少装箱、字符串拼接，使用对象池，避免临时对象"}, {"severity": "warning", "category": "GC", "description": "GC尖峰频繁 (2次超过500KB)", "suggestion": "检查每帧分配，使用StringBuilder，缓存引用"}, {"severity": "critical", "category": "Stability", "description": "性能异常率过高 (92.6%)", "suggestion": "详细分析异常发生时间点，定位问题根源"}], "recommendations": [{"priority": "critical", "category": "FPS", "title": "1%低点FPS极低 (0.2)，存在严重卡顿", "content": "定位异常帧，检查资源加载、GC或物理计算峰值"}, {"priority": "warning", "category": "FPS Stability", "title": "FPS波动过大 (变异系数: 0.51)", "content": "检查帧时间尖峰，优化资源加载，避免同步操作"}, {"priority": "critical", "category": "Memory Leak", "title": "检测到内存泄漏 (增长率: 319.58MB/分钟)", "content": "使用Memory Profiler定位泄漏源，检查事件订阅和静态引用"}, {"priority": "warning", "category": "GC", "title": "GC压力过大 (138KB/帧)，频繁触发GC", "content": "减少装箱、字符串拼接，使用对象池，避免临时对象"}, {"priority": "warning", "category": "GC", "title": "GC尖峰频繁 (2次超过500KB)", "content": "检查每帧分配，使用StringBuilder，缓存引用"}, {"priority": "critical", "category": "Stability", "title": "性能异常率过高 (92.6%)", "content": "详细分析异常发生时间点，定位问题根源"}, {"priority": "low", "category": "Best Practice", "title": "持续监控", "content": "建立性能基线，每个版本对比数据，在CI/CD中集成自动化性能测试"}, {"priority": "low", "category": "Best Practice", "title": "真机测试", "content": "在不同档次的真机设备上测试，特别关注中低端设备的表现"}]};
+
+        // 渲染页面
+        renderMetadata();
+        renderSummaryCards();
+        renderIssues();
+        renderRecommendations();
+
+        function renderMetadata() {
+            const meta = analysisData.metadata;
+            document.getElementById('metadata').innerHTML = `
+                文件: ${meta.file_name} | 
+                平台: ${meta.platform} | 
+                样本数: ${meta.total_samples} | 
+                时长: ${meta.duration.toFixed(1)}秒 | 
+                分析时间: ${meta.analysis_time}
+            `;
+        }
+
+        function renderSummaryCards() {
+            const fps = analysisData.fps;
+            const mem = analysisData.memory;
+            const gc = analysisData.gc;
+            const score = analysisData.performance_score;
+            const bottleneck = analysisData.bottleneck || {};
+            const trends = analysisData.trends || {};
+
+            const cards = [
+                {
+                    title: '性能评分',
+                    value: score,
+                    label: '/ 100',
+                    status: score >= 80 ? 'good' : score >= 60 ? 'warning' : 'bad'
+                },
+                {
+                    title: '平均FPS',
+                    value: fps.mean.toFixed(1),
+                    label: `P1: ${fps.p1.toFixed(1)} | P99: ${fps.p99.toFixed(1)}`,
+                    status: fps.mean >= 55 ? 'good' : fps.mean >= 30 ? 'warning' : 'bad'
+                },
+                {
+                    title: 'FPS稳定性',
+                    value: (fps.cv * 100).toFixed(1),
+                    label: '%变异系数',
+                    status: fps.cv < 0.15 ? 'good' : fps.cv < 0.25 ? 'warning' : 'bad'
+                },
+                {
+                    title: '内存峰值',
+                    value: mem.max ? mem.max.toFixed(0) : 'N/A',
+                    label: mem.max ? `增长: ${mem.growth.toFixed(0)}MB` : '',
+                    status: !mem.max ? 'good' : mem.max < 500 ? 'good' : mem.max < 800 ? 'warning' : 'bad'
+                },
+                {
+                    title: 'GC压力',
+                    value: gc.mean ? gc.mean.toFixed(0) : 'N/A',
+                    label: gc.spike_count ? `尖峰: ${gc.spike_count}次` : '',
+                    status: !gc.mean ? 'good' : gc.mean < 50 ? 'good' : gc.mean < 100 ? 'warning' : 'bad'
+                },
+                {
+                    title: '性能瓶颈',
+                    value: bottleneck.dominant_bottleneck || 'N/A',
+                    label: bottleneck.cpu_bottleneck_rate ? 
+                        `CPU: ${(bottleneck.cpu_bottleneck_rate*100).toFixed(0)}% | GPU: ${(bottleneck.gpu_bottleneck_rate*100).toFixed(0)}%` : '',
+                    status: bottleneck.balanced_rate > 0.5 ? 'good' : 'warning'
+                },
+                {
+                    title: 'FPS趋势',
+                    value: trends.fps ? (trends.fps.trend_type === 'increasing' ? '↑' : trends.fps.trend_type === 'decreasing' ? '↓' : '→') : 'N/A',
+                    label: trends.fps ? `${trends.fps.confidence} 置信度` : '',
+                    status: !trends.fps || trends.fps.trend_type === 'stable' || trends.fps.trend_type === 'increasing' ? 'good' : 'warning'
+                },
+                {
+                    title: '内存趋势',
+                    value: trends.memory ? (trends.memory.trend_type === 'increasing' ? '↑' : trends.memory.trend_type === 'decreasing' ? '↓' : '→') : 'N/A',
+                    label: trends.memory ? `斜率: ${trends.memory.slope.toFixed(3)}` : '',
+                    status: !trends.memory || trends.memory.trend_type !== 'increasing' ? 'good' : 'warning'
+                },
+                {
+                    title: '异常率',
+                    value: (analysisData.anomalies.rate * 100).toFixed(1),
+                    label: `${analysisData.anomalies.count}次`,
+                    status: analysisData.anomalies.rate < 0.05 ? 'good' : analysisData.anomalies.rate < 0.15 ? 'warning' : 'bad'
+                },
+                {
+                    title: '测试时长',
+                    value: (analysisData.summary.duration_minutes || 0).toFixed(1),
+                    label: `分钟 | ${analysisData.summary.total_samples}样本`,
+                    status: 'good'
+                }
+            ];
+
+            document.getElementById('summaryCards').innerHTML = cards.map(card => `
+                <div class="card ${card.status}">
+                    <div class="card-title">${card.title}</div>
+                    <div class="card-value">${card.value}</div>
+                    <div class="card-label">${card.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderIssues() {
+            const issues = analysisData.issues;
+            const html = `
+                <div class="section-title">⚠️ 检测到 ${issues.length} 个性能问题</div>
+                ${issues.map(issue => `
+                    <div class="issue-item ${issue.severity}">
+                        <div class="item-title">[${issue.severity.toUpperCase()}] ${issue.category}: ${issue.description}</div>
+                        <div class="item-content">💡 ${issue.suggestion}</div>
+                    </div>
+                `).join('')}
+            `;
+            document.getElementById('issues').innerHTML = html;
+        }
+
+        function renderRecommendations() {
+            const recommendations = analysisData.recommendations;
+            const html = `
+                <div class="section-title">💡 优化建议 (${recommendations.length}项)</div>
+                ${recommendations.map(rec => `
+                    <div class="recommendation-item ${rec.priority}">
+                        <div class="item-title">${getPriorityIcon(rec.priority)} ${rec.title}</div>
+                        <div class="item-content">${rec.content}</div>
+                    </div>
+                `).join('')}
+            `;
+            document.getElementById('recommendations').innerHTML = html;
+        }
+
+        function getPriorityIcon(priority) {
+            const icons = {'critical': '🔴', 'high': '🟠', 'medium': '🟡', 'low': '🟢', 'warning': '⚠️'};
+            return icons[priority] || '⚪';
+        }
+    </script>
+</body>
+</html>
